@@ -2,6 +2,8 @@ from asyncio.windows_events import NULL
 import lol_api, manage_data
 import discord
 import random
+import os
+from dotenv import load_dotenv
 
 from discord.channel import DMChannel
 from discord.ext import commands
@@ -11,15 +13,15 @@ import pandas as pd
 
 
 def getPosIndex(p_str):
-    if p_str == '탑':
+    if p_str == '탑' or p_str.lower() == 'top':
         return 0
-    elif p_str == '정글':
+    elif p_str == '정글' or p_str.lower() == 'jungle':
         return 1
-    elif p_str == '미드':
+    elif p_str == '미드' or p_str.lower() == 'mid':
         return 2
-    elif p_str == '원딜':
+    elif p_str == '원딜' or p_str.lower() == 'bot':
         return 3
-    elif p_str == '서폿':
+    elif p_str == '서폿' or p_str.lower() == 'sup':
         return 4
     return -1
 
@@ -210,9 +212,13 @@ if __name__ == '__main__':
     client = discord.Client()
     manage_data.loadData()
 
+    load_dotenv('discord.env')
+    token = os.getenv('TOKEN')
+    print(token)
+
     civil_war_players = []
     civil_war_players.clear()
-    civil_war_players.append({'userId': 39711001835602023, 'summonerName': 'HawardStark3', 'tier': 'SILVER', 'rank': 'IV', 'position': ['정글', '탑']})
+    """civil_war_players.append({'userId': 39711001835602023, 'summonerName': 'HawardStark3', 'tier': 'SILVER', 'rank': 'IV', 'position': ['정글', '탑']})
     civil_war_players.append({'userId': 39711001835602024, 'summonerName': 'HawardStark4', 'tier': 'Bronze', 'rank': 'V', 'position': ['미드', '원딜', '서폿']})
     civil_war_players.append({'userId': 39711001835602025, 'summonerName': 'HawardStark5', 'tier': 'Gold', 'rank': 'II', 'position': ['원딜', '서폿']})
     civil_war_players.append({'userId': 39711001835602026, 'summonerName': 'HawardStark6', 'tier': 'Gold', 'rank': 'I', 'position': ['미드']})
@@ -220,7 +226,7 @@ if __name__ == '__main__':
     civil_war_players.append({'userId': 39711001835602028, 'summonerName': 'HawardStark8', 'tier': 'Bronze', 'rank': 'III', 'position': ['정글', '미드']})
     civil_war_players.append({'userId': 39711001835602029, 'summonerName': 'HawardStark9', 'tier': 'Bronze', 'rank': 'III', 'position': ['미드', '원딜', '탑']})
     civil_war_players.append({'userId': 39711001835602020, 'summonerName': 'HawardStark10', 'tier': 'SILVER', 'rank': 'II', 'position': ['미드', '원딜']})
-    civil_war_players.append({'userId': 39711001835602021, 'summonerName': '동이스', 'tier': 'GOLD', 'rank': 'I', 'position': ['탑']})
+    civil_war_players.append({'userId': 39711001835602021, 'summonerName': '동이스', 'tier': 'GOLD', 'rank': 'I', 'position': ['탑']})"""
     
     #civil_war_players.clear()
     #makeTeams(civil_war_players)
@@ -238,7 +244,7 @@ if __name__ == '__main__':
         image = NULL
 
 
-        if message.content.startswith('!'):
+        """if message.content.startswith('!'):
             recieve_message = message.content[1:]
             splited = recieve_message.split(' ')
 
@@ -249,7 +255,7 @@ if __name__ == '__main__':
                 #image = discord.File("1640e6d4cd62c161.gif", filename="1640e6d4cd62c161.gif")
                 recieve_message = '잘못된 명령어입니다.'
 
-            """elif splited[0] == '오늘의승률':
+            elif splited[0] == '오늘의승률':
                 userId = message.author.id
                 summonerName = manage_data.getSummonerName(userId)
                 recieve_message = lol_api.matchList('주사위쫌굴려바')
@@ -260,7 +266,7 @@ if __name__ == '__main__':
                 elif splited[1] == '내전':
                     recieve_message = lol_api.getUserInfo(message.author.id).str
             elif splited[0] == '게임현황':
-                recieve_message = lol_api.getUserInfo(message.author.id).str"""
+                recieve_message = lol_api.getUserInfo(message.author.id).str
 
 
 
@@ -270,7 +276,7 @@ if __name__ == '__main__':
             if image != NULL:
                 await message.channel.send(recieve_message, file=image)
             else:
-                await message.channel.send(recieve_message)
+                await message.channel.send(recieve_message)"""
 
 
     game = discord.Game('DBG 재결합')
@@ -344,7 +350,9 @@ if __name__ == '__main__':
         idx = True
 
 
-        idx = civil_war_players[civil_war_players['userId'] == userId].empty
+        for pl in civil_war_players:
+            if pl['userId'] == userId:
+                idx = False
         print(idx)
 
         if idx:
@@ -355,9 +363,10 @@ if __name__ == '__main__':
                 if t == '탑' or t == '정글' or t == '미드' or t == '원딜' or t == '서폿':
                     tmp_pos.append(t)
 
-            civil_war_players.loc[civil_war_players['userId'] == userId, 'position'] = tmp_pos
-
-            recieve_message = '[{}]님의 포지션이 {}로 설정되었습니다.'.format(civil_war_players[idx]['summonerName'], tmp_pos)
+            for idx in range(0, len(civil_war_players)):
+                if civil_war_players[idx]['userId'] == userId:
+                    civil_war_players[idx]['position'] = tmp_pos
+                    recieve_message = '[{}]님의 포지션이 {}로 설정되었습니다.'.format(civil_war_players[idx]['summonerName'], tmp_pos)
         await ctx.channel.send(recieve_message)
         
 
@@ -369,13 +378,12 @@ if __name__ == '__main__':
         else:
             recieve_message = ''
 
-            print(registedMembers)
             for i, row in registedMembers.iterrows():
                 summonerInfo = lol_api.getSummonerInfo(registedMembers['summonerId'][i]).json()
                 tier = summonerInfo[len(summonerInfo)-1]['tier']
                 rank = summonerInfo[len(summonerInfo)-1]['rank']
 
-                recieve_message += '[{}] <{} {}>\r\n'.format(registedMembers['summonerName'][i], tier, rank)
+                recieve_message += '[{}] <{} {}> {}\r\n'.format(registedMembers['summonerName'][i], tier, rank, registedMembers['userName'][i])
         await ctx.channel.send(recieve_message)
         
 
@@ -409,10 +417,10 @@ if __name__ == '__main__':
         await ctx.channel.send(recieve_message)
         
 
-    @client.command(aliases=['DBG'])
+    @client.command(aliases=['DBG', 'dbg'])
     async def dbg_assemble(ctx, text):
         if text == 'assemble':
-            recieve_message = '[{}]님이 DBG 소집을 요청하였습니다. 현재 모인 멤버는 총 {}명입니다. @everyone'.format(ctx.author, len(civil_war_players))
+            recieve_message = '[{}]님이 DBG 소집을 요청하였습니다. 현재 모인 멤버는 총 {}명입니다. '.format(ctx.author, len(civil_war_players))
             image = discord.File("1611403576434.png", filename='1611403576434.png')
         await ctx.channel.send(recieve_message, file=image)
         
@@ -431,7 +439,7 @@ if __name__ == '__main__':
             for t in text:
                 ms += t+' '
             ms = '\r\n'
-        ctx.channel.send(ms)
+        await ctx.channel.send(ms)
 
 
     @client.command(aliases=['도움말', '명령어'])
@@ -443,9 +451,9 @@ if __name__ == '__main__':
         recieve_message += '!내전팀분배 : 내전팀 자동 분배\r\n'
         recieve_message += '!내전초기화 : 내전팀 멤버 초기화\r\n'
         recieve_message += '!DBG assemble : 내전 멤버 구인 메세지\r\n'
-        ctx.channel.send(recieve_message)
+        await ctx.channel.send(recieve_message)
 
 
-    client.run('token') #토큰
+    client.run(token) #토큰
 
     
