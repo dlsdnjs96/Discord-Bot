@@ -357,7 +357,6 @@ if __name__ == '__main__':
 
             civil_war_players.loc[civil_war_players['userId'] == userId, 'position'] = tmp_pos
 
-            #civil_war_players[idx]['position'] = tmp_pos
             recieve_message = '[{}]님의 포지션이 {}로 설정되었습니다.'.format(civil_war_players[idx]['summonerName'], tmp_pos)
         await ctx.channel.send(recieve_message)
         
@@ -447,6 +446,6 @@ if __name__ == '__main__':
         ctx.channel.send(recieve_message)
 
 
-    client.run('OTA3OTE0NDAzNjI0NjU2OTA4.YYuHLg.hxKpWCKHtSxeT89dPYbtPtPvnWs') #토큰
+    client.run('token') #토큰
 
     
